@@ -1,0 +1,106 @@
+Real-Time Collaboration Tool
+
+### Backend (Spring Boot)
+1. Main Application Class
+   - Located in com.app.collabtool.
+   - Bootstraps the Spring Boot application using SpringApplication.run.
+
+2. Configuration
+   - WebConfig:
+     - Manages CORS settings to allow requests from specific origins.
+     - Configures an interceptor (AuthInterceptor) for route protection (api/**).
+   - WebSocketConfig:
+     - Enables WebSocket message broker with endpoints for real-time communication.
+     - Uses STOMP protocol for message handling.
+
+3. Controllers
+   - ChatController:
+     - Handles chat-related operations such as fetching chat history, sending messages, and changing statuses.
+   - FileController:
+     - Manages file uploads to Google Drive.
+     - Provides endpoints for file download and deletion.
+     - Uses MongoDB for metadata storage.
+   - NotificationController:
+     - Manages notifications stored in MongoDB.
+     - Handles creation and retrieval of notifications.
+   - TaskController:
+     - Manages task creation, updating, and deletion.
+     - Uses MongoDB for task persistence.
+   - UserController:
+     - Handles user authentication, including login and logout.
+
+4. Services
+   - ChatService:
+     - Implements business logic for chat, including conversation creation and message sending.
+   - GoogleDriveService:
+     - Integrates with Google Drive for file management (upload, share, delete).
+   - UserService:
+     - Authenticates users against the MongoDB repository.
+   - Constants:
+     - Centralized configuration for URLs.
+
+5. Interceptors
+   - AuthInterceptor:
+     - Ensures only authenticated users can access secured routes.
+
+6. Data Models
+   - Define entities such as Conversation, File, Message, Notification, Task, and User.
+   - Annotated for MongoDB persistence.
+
+7. Repositories
+   - Implement MongoDB interaction using Spring Data MongoDB.
+
+---
+
+### Frontend (React)
+1. Components
+   - ChatComponent:
+     - Manages real-time chat functionality, including message sending and receiving.
+     - Displays recent chats and message history.
+   - FileUpload:
+     - Handles file uploads, downloads, and deletion.
+     - Integrates with Google Drive for file management.
+   - Login:
+     - Provides user authentication interface.
+     - Integrates with WebSocket for real-time updates post-login.
+   - TaskManager:
+     - Manages tasks, including creation, updating, and deletion.
+     - Provides a search functionality for filtering tasks.
+   - FileNotificationManager:
+     - Displays notifications about file-related activities.
+   - Navbar:
+     - Provides navigation links to various tool sections.
+
+2. Features
+   - Real-Time Updates:
+     - WebSocket connections for live chat and task updates.
+   - State Management:
+     - Local state is used for individual component data.
+   - Notifications:
+     - Push notifications for file or task events.
+   - Search Functionality:
+     - Enables searching for users, tasks, or notifications.
+
+3. Styling and Libraries
+   - Utilizes Bootstrap and custom CSS for UI styling.
+   - Employs axios for API requests.
+
+---
+
+### Technologies Used
+- Backend:
+  - Java, Spring Boot, MongoDB, Google Drive API, STOMP WebSocket.
+- Frontend:
+  - React, Axios, Bootstrap, WebSocket (via SockJS and STOMP.js).
+
+---
+
+### Key Functionalities
+1. Chat System:
+   - Real-time messaging with status updates (read/unread).
+2. File Management:
+   - Uploads to Google Drive, with sharing and deletion capabilities.
+3. Task Management:
+   - CRUD operations on tasks with WebSocket-driven real-time updates.
+4. Notifications:
+   - Alerts for file uploads, deletions, and task updates.

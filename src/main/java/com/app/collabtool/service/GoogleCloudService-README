@@ -1,0 +1,27 @@
+-> Steps to Generate and Use the Correct Service Account Credentials
+Create a Service Account:
+
+Go to the Google Cloud Console.
+Navigate to IAM & Admin > Service Accounts.
+Click Create Service Account.
+Enter a name and description for the service account, then click Create.
+Under "Grant this service account access to the project," choose the appropriate role (e.g., "Editor" or "Drive API Admin" for accessing Google Drive).
+Click Continue and Done.
+Generate a Key:
+
+Once the service account is created, select it from the list.
+Go to the Keys tab and click Add Key > Create New Key.
+Choose the JSON key type and click Create.
+A JSON file will be downloaded. This is the credentials file you need.
+Use the Service Account Credentials:
+
+Replace the existing credentials.json with the newly downloaded service account JSON file.
+
+-> Steps to Generate and Use the OAuth 2.0 Credentials.
+Go to the Google Cloud Console: Google Cloud Console.
+Enable the Google Drive API for your project.
+Navigate to APIs & Services > Credentials.
+Create OAuth Credentials:
+Click on Create Credentials and select OAuth 2.0 Client IDs.
+You’ll need to configure the consent screen and provide the necessary details, such as application name and redirect URIs (where users will be redirected after authentication).
+Download the OAuth 2.0 credentials file (usually named client_secret.json).
