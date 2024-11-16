@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
-import axios from 'axios'; // Ensure axios is imported
+import axios from 'axios';
 import constants from '../Services/Constants'
 
 class TaskManager extends Component {
@@ -94,7 +94,7 @@ class TaskManager extends Component {
                         this.state.client.publish({ destination: '/app/deleteTask', body: JSON.stringify(response.data) });
                         this.fetchTasks();
                         axios.post(constants.BACKEND_URL + 'api/notifications/add', {
-                            desc: task.title + "task deleted from the server.",
+                            desc: task.title + " task deleted from the server.",
                             createdBy: this.user.email
                         })
                             .then(response => {
@@ -176,10 +176,10 @@ class TaskManager extends Component {
 
         return (
             <div>
-                <div id="loadingPopup" class="popup-overlay" style={{ display: "none" }}>
-                    <div class="popup-content">
-                        <button class="btn btn-primary" disabled>
-                            <span class="spinner-border spinner-border-sm"></span>
+                <div id="loadingPopup" className="popup-overlay" style={{ display: "none" }}>
+                    <div className="popup-content">
+                        <button className="btn btn-primary" disabled>
+                            <span className="spinner-border spinner-border-sm"></span>
                             Loading..
                         </button>
                     </div>

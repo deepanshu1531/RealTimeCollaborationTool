@@ -2,9 +2,11 @@ import React, { Component, createRef } from 'react';
 import axios from 'axios';
 import UserList from './UserList';
 import Constants from '../Services/Constants';
+import EmojiPicker from 'emoji-picker-react';
+import NotificationSound from './notification.mp3';
 import './chat.css';
 import 'primeicons/primeicons.css';
-import NotificationSound from './notification.mp3';
+
 
 class ChatComponent extends Component {
     constructor(props) {
@@ -17,7 +19,7 @@ class ChatComponent extends Component {
             newMessage: '',
             attachment: null,
             read: false,
-            // userInteracted: false
+            showEmojiPicker: false,
         };
         this.chatInterval = null;
         this.messagesEndRef = createRef(); // Ref to keep track of the last message
@@ -25,7 +27,6 @@ class ChatComponent extends Component {
     }
 
     componentDidMount() {
-        console.log(sessionStorage.getItem("recentChats"))
         // Clear any previous interval
         if (this.chatInterval) {
             clearInterval(this.chatInterval);
@@ -36,6 +37,9 @@ class ChatComponent extends Component {
             this.loadRecentChats();
         }, 2000);
         this.scrollToBottom();
+
+        // Add click listener to close emoji picker
+        document.addEventListener("click", this.handleOutsideEmojiClick);
     }
 
     scrollToBottom = () => {
@@ -50,6 +54,9 @@ class ChatComponent extends Component {
         if (this.chatInterval) {
             clearInterval(this.chatInterval);
         }
+
+        // Remove click listener
+        document.removeEventListener("click", this.handleOutsideClick);
     }
 
     formatDateTime = (dateString) => {
@@ -61,13 +68,6 @@ class ChatComponent extends Component {
         const minutes = String(date.getMinutes()).padStart(2, '0');
         return `${day}-${month}-${year} & ${hours}:${minutes}`;
     }
-
-    // handleUserInteraction = () => {
-    //     this.setState({ userInteracted: true });
-    //     // Remove listeners after first interaction
-    //     window.removeEventListener('click', this.handleUserInteraction);
-    //     window.removeEventListener('keydown', this.handleUserInteraction);
-    // };
 
     playNotification = () => {
         if (this.notificationAudio.current) {
@@ -130,6 +130,29 @@ class ChatComponent extends Component {
         });
     };
 
+    handleOutsideEmojiClick = (event) => {
+        const emojiPickerElement = document.querySelector('.emoji-picker'); // Adjust the selector if needed
+        const toggleButton = event.target.closest('.pi-face-smile');
+
+        // Check if the click is outside the emoji picker and not on the toggle button
+        if (
+            this.state.showEmojiPicker &&
+            emojiPickerElement &&
+            !emojiPickerElement.contains(event.target) &&
+            !toggleButton
+        ) {
+            this.setState({ showEmojiPicker: false });
+        }
+    };
+
+    toggleEmojiPicker = () => {
+        this.setState((prevState) => ({ showEmojiPicker: !prevState.showEmojiPicker }));
+    };
+
+    onEmojiClick = (emojiObject) => {
+        this.setState({ newMessage: this.state.newMessage + emojiObject.emoji });
+    };
+
     handleMessageChange = (e) => {
         this.setState({ newMessage: e.target.value });
     };
@@ -140,25 +163,28 @@ class ChatComponent extends Component {
 
     sendMessage = async (event) => {
         event.preventDefault();
-        const formData = new FormData();
-        formData.append('senderEmail', this.state.user.email);
-        formData.append('receiverEmail', this.state.receiverEmail);
-        formData.append('content', this.state.newMessage);
-        formData.append('attachment', this.state.attachment);
+        if (this.state.newMessage !== '') {
+            const formData = new FormData();
+            formData.append('senderEmail', this.state.user.email);
+            formData.append('receiverEmail', this.state.receiverEmail);
+            formData.append('content', this.state.newMessage);
+            formData.append('attachment', this.state.attachment);
 
-        await axios.post(`${Constants.BACKEND_URL}api/chat/send`, formData)
-            .then(response => {
-                console.log('Message sent successfully- ', response.data);
-                this.setState({
-                    newMessage: '',
-                    attachment: null
+            await axios.post(`${Constants.BACKEND_URL}api/chat/send`, formData)
+                .then(response => {
+                    console.log('Message sent successfully- ', response.data);
+                    this.setState({
+                        newMessage: '',
+                        attachment: null
+                    })
+                    this.loadChatHistory(this.state.receiverEmail);
+                    this.loadRecentChats();
+                    this.scrollToBottom();
                 })
-                this.loadChatHistory(this.state.receiverEmail);
-                this.loadRecentChats();
-            })
-            .catch(error => {
-                console.error('There was an error sending the message!', error);
-            });
+                .catch(error => {
+                    console.error('There was an error sending the message!', error);
+                });
+        }
     };
 
     openPopup = () => {
@@ -172,17 +198,17 @@ class ChatComponent extends Component {
     render() {
         return (
             <div>
-                <div id="loadingPopup" class="popup-overlay" style={{ display: "none" }}>
-                    <div class="popup-content">
-                        <button class="btn btn-primary" disabled>
-                            <span class="spinner-border spinner-border-sm"></span>
+                <div id="loadingPopup" className="popup-overlay" style={{ display: "none" }}>
+                    <div className="popup-content">
+                        <button className="btn btn-primary" disabled>
+                            <span className="spinner-border spinner-border-sm"></span>
                             Loading..
                         </button>
                     </div>
                 </div>
                 <audio ref={this.notificationAudio} src={NotificationSound} />
                 <span style={{ marginLeft: '1.5rem' }}>
-                    <div class="alert alert-primary">
+                    <div className="alert alert-primary">
                         <h5><i className="pi pi-envelope" style={{ fontSize: '1.5rem' }}></i> &nbsp;
                             {this.state.receiverEmail ? `${this.state.receiverEmail}` : ''}
                         </h5>
@@ -239,23 +265,56 @@ class ChatComponent extends Component {
                                             {msg.attachmentUrl && <a href={msg.attachmentUrl}>Download Attachment</a>}
                                         </div>
                                     ))}
-                                    <div ref={this.messagesEndRef} /> {/* Ref to track the end of messages */}
+                                    <div ref={this.messagesEndRef} />
                                 </div>
-                                <form className="new-message" onSubmit={
-                                    e => {
-                                        this.sendMessage(e);
-                                        this.scrollToBottom();
-                                    }}>
-                                    <input className="form-control" type="text" value={this.state.newMessage} onChange={this.handleMessageChange} />
-                                    <label htmlFor="file-upload" className="secondary">
-                                        <span className='btn btn-outline-secondary'>
+                                <form className="new-message" onSubmit={this.sendMessage}>
+
+                                    {/* Emoji Picker (Shown when active) */}
+                                    {this.state.showEmojiPicker && (
+                                        <div className="emoji-picker">
+                                            <EmojiPicker onEmojiClick={(emojiData) => this.onEmojiClick(emojiData)} />
+                                        </div>
+                                    )}
+
+                                    <div className="input-group">
+                                        {/* Text Input */}
+                                        <input
+                                            className="form-control"
+                                            type="text"
+                                            value={this.state.newMessage}
+                                            onChange={this.handleMessageChange}
+                                            placeholder="Type a message..."
+                                        />
+
+                                        {/* File Upload Button */}
+                                        <label htmlFor="file-upload" className="input-group-text btn btn-outline-secondary">
                                             <i className="pi pi-paperclip" style={{ fontSize: '1rem' }}></i>
-                                        </span>
-                                    </label>
-                                    <input id="file-upload" type="file" onChange={this.handleFileChange} style={{ display: 'none' }} />
-                                    <button>
-                                        <i className="pi pi-send" style={{ fontSize: '1rem' }}></i>
-                                    </button>
+                                        </label>
+                                        <input
+                                            id="file-upload"
+                                            type="file"
+                                            onChange={this.handleFileChange}
+                                            style={{ display: 'none' }}
+                                        />
+
+                                        {/* Emoji Picker Button */}
+                                        <button
+                                            type="button"
+                                            onClick={this.toggleEmojiPicker}
+                                            className="input-group-text btn btn-outline-secondary"
+                                        >
+                                            <i className="pi pi-face-smile" style={{ fontSize: '1rem' }}></i>
+                                        </button>
+
+                                        {/* Send Button */}
+                                        <button
+                                            type="button"
+                                            onClick={this.sendMessage}
+                                            className="input-group-text btn btn-outline-success"
+                                        >
+                                            <i className="pi pi-send" style={{ fontSize: '1rem' }}></i>
+                                        </button>
+                                    </div>
                                 </form>
                             </>
                         )}

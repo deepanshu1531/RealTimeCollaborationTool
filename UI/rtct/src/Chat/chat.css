@@ -100,7 +100,8 @@ body {
 
 @media (max-width: 400px) {
     .message {
-        font-size: 11px; /* Smaller font on extra small screens */
+        font-size: 11px;
+        /* Smaller font on extra small screens */
     }
 }
 
@@ -185,22 +186,15 @@ body {
 }
 
 .new-message button {
-    background-color: #28a745;
-    color: white;
-    border: none;
     border-radius: 5px;
-    padding: 10px 15px;
+    padding: 7px 15px;
     cursor: pointer;
     flex-shrink: 0;
 }
 
-.new-message button:hover {
-    background-color: #218838;
-}
-
 @media (max-width: 600px) {
     .new-message button {
-        width: 100%;
+        /* width: 100%; */
         padding: 8px;
     }
 }
@@ -224,4 +218,47 @@ body {
     .timestamp {
         font-size: 10px;
     }
+}
+
+.emoji-picker {
+    position: absolute;
+    bottom: -100px;
+    /* Default position for larger screens */
+    right: 75px;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile View - Adjust Emoji Picker */
+@media (max-width: 600px) {
+    .emoji-picker {
+        position: fixed;
+        bottom: 80px; /* Slightly above the bottom */
+        left: 15px; /* Add a small margin from the left */
+        right: 0px; /* Add a small margin from the right */
+        width: auto; /* Adjust width to fit content */
+        max-width: 90%; /* Limit the maximum width */
+        background-color: white;
+        padding: 10px; /* Reduced padding for smaller appearance */
+        border-radius: 8px; /* Maintain slight rounded corners */
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+}
+
+.emoji-picker button {
+    background-color: #fbfbfb;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.emoji-picker button:hover {
+    background-color: #dcdddc;
 }

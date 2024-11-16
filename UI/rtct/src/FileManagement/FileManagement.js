@@ -188,10 +188,10 @@ class FileUpload extends Component {
 
         return (
             <div>
-                <div id="loadingPopup" class="popup-overlay" style={{ display: "none" }}>
-                    <div class="popup-content">
-                        <button class="btn btn-primary" disabled>
-                            <span class="spinner-border spinner-border-sm"></span>
+                <div id="loadingPopup" className="popup-overlay" style={{ display: "none" }}>
+                    <div className="popup-content">
+                        <button className="btn btn-primary" disabled>
+                            <span className="spinner-border spinner-border-sm"></span>
                             Loading..
                         </button>
                     </div>
